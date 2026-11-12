@@ -1,0 +1,6 @@
+{
+  "name": "Control de Riesgos UTS · Integración GD ↔ Academusoft",
+  "description": "Tablero interactivo de gestión de riesgos con mapa de calor 5x5 arrastrable, simulación de mitigación y analítica en tiempo real para la integración GD ↔ Academusoft de las UTS.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
