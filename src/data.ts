@@ -9,7 +9,8 @@ export type TabId =
   | 'alternativas'
   | 'decision'
   | 'canvas'
-  | 'riesgos';
+  | 'riesgos'
+  | 'implementacion';
 
 export interface NavTab {
   id: TabId;
@@ -25,6 +26,7 @@ export const NAV_TABS: NavTab[] = [
   { id: 'decision', label: 'Decisión', shortDesc: 'Matriz ponderada' },
   { id: 'canvas', label: 'Canvas', shortDesc: 'Modelo de negocio' },
   { id: 'riesgos', label: 'Riesgos', shortDesc: 'Control 5×5' },
+  { id: 'implementacion', label: 'Implementación', shortDesc: 'Plan 12 sem.' },
 ];
 
 // ----------------------------------------------------------------------------
@@ -810,3 +812,246 @@ export function getOwnerGradient(name: string): string {
       return 'from-cyan-400 to-violet-500';
   }
 }
+
+// ----------------------------------------------------------------------------
+// 8. PLAN DE IMPLEMENTACIÓN (ALTERNATIVA 3 · iPaaS EN LA NUBE)
+// ----------------------------------------------------------------------------
+
+export type ImplementationPriority = 'Alta' | 'Media';
+export type ImplementationStatus = 'Pendiente' | 'En progreso' | 'Completado';
+
+export interface ImplementationActivity {
+  id: number;
+  priority: ImplementationPriority;
+  activity: string;
+  responsable: string;
+  dependencies: number[];
+  dependenciesLabel: string;
+  durationWeeks: number;
+  startWeek: number; // 1..12
+  requirements: string[];
+  risks: string[];
+}
+
+export const IMPLEMENTATION_NOTICE =
+  'Plazos y responsables son propuesta del equipo; el PETI UTS 2026 no define cronograma ni presupuesto.';
+
+export const IMPLEMENTATION_OWNER_FILTERS = [
+  'Todas',
+  'Equipo de TI',
+  'Área financiera',
+  'Área académica',
+  'Proveedor iPaaS',
+  'Líder del proyecto',
+] as const;
+
+export interface ImplementationPhase {
+  id: string;
+  name: string;
+  weekRange: string;
+  startMin: number;
+  startMax: number;
+  accent: string;
+}
+
+export const IMPLEMENTATION_PHASES: ImplementationPhase[] = [
+  {
+    id: 'planeacion',
+    name: 'Planeación',
+    weekRange: 'S1 a S3',
+    startMin: 1,
+    startMax: 3,
+    accent: '#22D3EE',
+  },
+  {
+    id: 'configuracion',
+    name: 'Configuración',
+    weekRange: 'S4 a S5',
+    startMin: 4,
+    startMax: 5,
+    accent: '#8B5CF6',
+  },
+  {
+    id: 'construccion',
+    name: 'Construcción',
+    weekRange: 'S6 a S7',
+    startMin: 6,
+    startMax: 7,
+    accent: '#38BDF8',
+  },
+  {
+    id: 'pruebas',
+    name: 'Pruebas',
+    weekRange: 'S8 a S10',
+    startMin: 8,
+    startMax: 10,
+    accent: '#FBBF24',
+  },
+  {
+    id: 'cierre',
+    name: 'Cierre',
+    weekRange: 'S11 a S12',
+    startMin: 11,
+    startMax: 12,
+    accent: '#34D399',
+  },
+];
+
+export const IMPLEMENTATION_ACTIVITIES: ImplementationActivity[] = [
+  {
+    id: 1,
+    priority: 'Alta',
+    activity:
+      'Confirmar alcance y requisitos con las áreas; definir métricas pendientes (disponibilidad, tiempo de respuesta, volumen de pagos)',
+    responsable: 'Líder del proyecto, área financiera y área académica',
+    dependencies: [],
+    dependenciesLabel: 'N/A',
+    durationWeeks: 1,
+    startWeek: 1,
+    requirements: ['RNF-03', 'RNF-04'],
+    risks: ['R4'],
+  },
+  {
+    id: 2,
+    priority: 'Alta',
+    activity:
+      'Levantar y documentar los formatos de datos y las APIs de GD y Academusoft',
+    responsable: 'Equipo de TI de las UTS, proveedores de GD y Academusoft',
+    dependencies: [1],
+    dependenciesLabel: '1',
+    durationWeeks: 2,
+    startWeek: 2,
+    requirements: ['RF-05'],
+    risks: ['R2'],
+  },
+  {
+    id: 3,
+    priority: 'Alta',
+    activity:
+      'Validar la Ley 1581 de 2012 y las condiciones del proveedor iPaaS (SLA, ubicación de los datos) y habilitar el servicio',
+    responsable: 'Líder del proyecto, equipo de TI',
+    dependencies: [1],
+    dependenciesLabel: '1',
+    durationWeeks: 2,
+    startWeek: 2,
+    requirements: ['RNF-01', 'RNF-03'],
+    risks: ['R3', 'R4'],
+  },
+  {
+    id: 4,
+    priority: 'Alta',
+    activity:
+      'Configurar el servicio iPaaS y la conexión segura nube–UTS (HTTPS, autenticación y cifrado)',
+    responsable: 'Equipo de TI, proveedor iPaaS',
+    dependencies: [2, 3],
+    dependenciesLabel: '2, 3',
+    durationWeeks: 2,
+    startWeek: 4,
+    requirements: ['RNF-01', 'RNF-02'],
+    risks: ['R1', 'R3'],
+  },
+  {
+    id: 5,
+    priority: 'Alta',
+    activity:
+      'Construir el flujo principal: capturar pagos de GD y enviarlos a Academusoft por Web Service HTTPS',
+    responsable: 'Equipo de TI',
+    dependencies: [4],
+    dependenciesLabel: '4',
+    durationWeeks: 2,
+    startWeek: 6,
+    requirements: ['RF-01', 'RF-02', 'RF-03'],
+    risks: ['R1'],
+  },
+  {
+    id: 6,
+    priority: 'Media',
+    activity:
+      'Implementar validación de formato, registro del estado de pago, consulta de estado e historial (log) de cargues',
+    responsable: 'Equipo de TI',
+    dependencies: [4],
+    dependenciesLabel: '4',
+    durationWeeks: 2,
+    startWeek: 6,
+    requirements: ['RF-04', 'RF-05', 'RF-06', 'RNF-05'],
+    risks: ['R2'],
+  },
+  {
+    id: 7,
+    priority: 'Media',
+    activity: 'Configurar la consola de monitoreo y las alertas de fallas',
+    responsable: 'Equipo de TI, proveedor iPaaS',
+    dependencies: [5, 6],
+    dependenciesLabel: '5, 6',
+    durationWeeks: 1,
+    startWeek: 8,
+    requirements: ['RF-04', 'RNF-05'],
+    risks: ['R1', 'R4'],
+  },
+  {
+    id: 8,
+    priority: 'Alta',
+    activity:
+      'Pruebas de integración y de carga (simulando el pico de matrícula)',
+    responsable: 'Equipo de TI, área financiera',
+    dependencies: [5, 6],
+    dependenciesLabel: '5, 6',
+    durationWeeks: 2,
+    startWeek: 8,
+    requirements: ['RNF-03', 'RNF-04'],
+    risks: ['R1', 'R4'],
+  },
+  {
+    id: 9,
+    priority: 'Alta',
+    activity:
+      'Pruebas de aceptación con las áreas financiera y académica',
+    responsable: 'Área financiera, área académica',
+    dependencies: [7, 8],
+    dependenciesLabel: '7, 8',
+    durationWeeks: 1,
+    startWeek: 10,
+    requirements: ['RF-01 a RF-06'],
+    risks: ['R2'],
+  },
+  {
+    id: 10,
+    priority: 'Media',
+    activity:
+      'Capacitar al personal y entregar manual de uso y documentación técnica',
+    responsable: 'Equipo de TI',
+    dependencies: [8],
+    dependenciesLabel: '8',
+    durationWeeks: 1,
+    startWeek: 10,
+    requirements: ['RNF-06'],
+    risks: ['R5'],
+  },
+  {
+    id: 11,
+    priority: 'Alta',
+    activity:
+      'Revisión final del cumplimiento de requisitos (RF-01 a RF-06, RNF-01 a RNF-06)',
+    responsable: 'Líder del proyecto',
+    dependencies: [9, 10],
+    dependenciesLabel: '9, 10',
+    durationWeeks: 1,
+    startWeek: 11,
+    requirements: ['todos'],
+    risks: ['todos'],
+  },
+  {
+    id: 12,
+    priority: 'Alta',
+    activity:
+      'Puesta en producción y seguimiento del primer periodo de pagos',
+    responsable: 'Equipo de TI, líder del proyecto',
+    dependencies: [11],
+    dependenciesLabel: '11',
+    durationWeeks: 1,
+    startWeek: 12,
+    requirements: ['RNF-03', 'RNF-04'],
+    risks: ['R1', 'R4'],
+  },
+];
+

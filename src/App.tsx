@@ -9,12 +9,14 @@ import AlternativasTab from './components/AlternativasTab';
 import DecisionTab from './components/DecisionTab';
 import CanvasTab from './components/CanvasTab';
 import RiesgosTab from './components/RiesgosTab';
+import ImplementacionTab from './components/ImplementacionTab';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('resumen');
   const [isDark, setIsDark] = useState<boolean>(true);
   const [highlightedReqId, setHighlightedReqId] = useState<string | null>(null);
   const [highlightedNeedId, setHighlightedNeedId] = useState<number | null>(null);
+  const [pendingRiskId, setPendingRiskId] = useState<string | null>(null);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark);
@@ -30,7 +32,13 @@ export default function App() {
     }
   };
 
-  const handleNavigateRequirement = (reqId: string) => {
+  const handleNavigateRequirement = (reqId?: string) => {
+    if (!reqId) {
+      setHighlightedReqId(null);
+      setActiveTab('requisitos');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     if (reqId.toUpperCase().startsWith('PETI')) {
       setHighlightedNeedId(5);
       setActiveTab('peti');
@@ -39,6 +47,12 @@ export default function App() {
     }
     setHighlightedReqId(reqId);
     setActiveTab('requisitos');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleNavigateRisk = (riskId?: string) => {
+    setPendingRiskId(riskId ?? null);
+    setActiveTab('riesgos');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -172,6 +186,14 @@ export default function App() {
               {activeTab === 'riesgos' && (
                 <RiesgosTab
                   isDark={isDark}
+                  onNavigateRequirement={handleNavigateRequirement}
+                  initialRiskId={pendingRiskId}
+                  onConsumeInitialRisk={() => setPendingRiskId(null)}
+                />
+              )}
+              {activeTab === 'implementacion' && (
+                <ImplementacionTab
+                  onNavigateRisk={handleNavigateRisk}
                   onNavigateRequirement={handleNavigateRequirement}
                 />
               )}

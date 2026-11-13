@@ -59,6 +59,8 @@ type SortDirection = 'asc' | 'desc';
 interface RiesgosTabProps {
   isDark: boolean;
   onNavigateRequirement: (reqId: string) => void;
+  initialRiskId?: string | null;
+  onConsumeInitialRisk?: () => void;
 }
 
 // ============================================================================
@@ -1574,12 +1576,21 @@ function RiskTable({
 export default function RiesgosTab({
   isDark,
   onNavigateRequirement,
+  initialRiskId,
+  onConsumeInitialRisk,
 }: RiesgosTabProps) {
   const [risks, setRisks] = useState<RiskItem[]>(INITIAL_RISKS);
   const [zoneFilter, setZoneFilter] = useState<RiskZone | 'Todos'>('Todos');
   const [ownerFilter, setOwnerFilter] = useState<string>('Todos');
   const [simulateMitigation, setSimulateMitigation] = useState<boolean>(false);
   const [selectedRiskId, setSelectedRiskId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (initialRiskId) {
+      setSelectedRiskId(initialRiskId);
+      onConsumeInitialRisk?.();
+    }
+  }, [initialRiskId, onConsumeInitialRisk]);
 
   const computedRisks: ComputedRisk[] = useMemo(() => {
     const raw = risks.map((r) => {
